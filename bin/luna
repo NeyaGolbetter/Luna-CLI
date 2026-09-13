@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Luna CLI entrypoint — Termux-friendly (plain bash, no extra deps).
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 && pwd)"
+ROOT="$(dirname "$SCRIPT_DIR")"
+ENTRY="$ROOT/dist/cli/index.js"
+
+# Termux: make sure `node` resolves (pkg install nodejs-lts).
+if ! command -v node >/dev/null 2>&1; then
+  echo "luna: node not found. On Termux: pkg install nodejs-lts" >&2
+  exit 1
+fi
+
+if [ -f "$ENTRY" ]; then
+  exec node "$ENTRY" "$@"
+fi
+
+# First run from a git checkout without a build.
+if [ -f "$ROOT/package.json" ] && [ -d "$ROOT/node_modules" ] && [ -d "$ROOT/src" ]; then
+  echo "luna: no build found — running 'npm run build' (one time)…" >&2
+  ( cd "$ROOT" && npm run build --silent )
+  exec node "$ENTRY" "$@"
+fi
+
+echo "luna: cannot find dist/cli/index.js" >&2
+echo "  → in the repo root run: npm install && npm run build" >&2
+exit 1
