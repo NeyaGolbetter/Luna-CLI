@@ -233,5 +233,5 @@ export function banner(model, provider, mcpServers, mcpTools) {
         chalk.dim('│') + '  ' + chalk.dim('commands: /help /clear /model /tools /status /exit'),
         chalk.dim('└────────────────────────────────────────────'),
     ].join('\n');
-    return head + '\n' + sub;
+    return head + '\n' + sub + '\n';
 }
